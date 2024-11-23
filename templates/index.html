@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador CFMoto México</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+        :root {
+            --cfmoto-blue: #0095DA;
+            --cfmoto-dark: #000;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--cfmoto-dark);
+        }
+
+        .disclaimer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .disclaimer-modal {
+            background-color: white;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+            border: 1px solid #ddd;
+        }
+
+        .disclaimer-title {
+            color: var(--cfmoto-black);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .disclaimer-content {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .disclaimer-button {
+            background-color: var(--cfmoto-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .disclaimer-button:hover {
+            background-color: #007bb8;
+        }
+
+        /* Para prevenir el scroll mientras el disclaimer está activo */
+        body.disclaimer-active {
+            overflow: hidden;
+        }
+
+        /* Animación de entrada para el disclaimer */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .disclaimer-modal {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .navbar {
+            background-color: var(--cfmoto-dark);
+            padding: 1rem 2rem;
+        }
+
+        .navbar-brand img {
+            height: 30px;
+        }
+
+        .hero-section {
+            position: relative;
+            height: 60vh;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                        url('/static/hero-background.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .moto-card {
+            border: none;
+            border-radius: 0;
+            transition: transform 0.3s;
+            background-color: #f8f9fa;
+            margin-bottom: 2rem;
+        }
+
+        .moto-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .moto-card.selected {
+            border: 2px solid var(--cfmoto-blue);
+        }
+
+        .moto-card img {
+            border-radius: 0;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0;
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: none;
+            border-color: var(--cfmoto-blue);
+        }
+
+        .btn-cfmoto {
+            background-color: var(--cfmoto-blue);
+            color: white;
+            border-radius: 0;
+            padding: 0.75rem 2rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            border: none;
+        }
+
+        .btn-cfmoto:hover {
+            background-color: #007bb8;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .cotizacion-form {
+            background-color: white;
+            padding: 3rem;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .results-section {
+            background-color: #f8f9fa;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        footer {
+            background-color: var(--cfmoto-dark);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="disclaimer-overlay" id="disclaimerModal">
+        <div class="disclaimer-modal">
+            <div class="disclaimer-title">
+                ⚠️ AVISO IMPORTANTE
+            </div>
+            <div class="disclaimer-content">
+                <p>Este sitio web es un <strong>prototipo demostrativo</strong> y no está afiliado oficialmente con CFMoto México.</p>
+                
+                <p>Por favor, tenga en cuenta que:</p>
+                <ul>
+                    <li>La información mostrada es únicamente con fines ilustrativos</li>
+                    <li>Los precios, modelos y especificaciones no son oficiales</li>
+                    <li>Los cálculos financieros son aproximados y no constituyen una oferta real</li>
+                    <li>Para información oficial, visite el sitio web de CFMoto México o contacte a un distribuidor autorizado</li>
+                </ul>
+                
+                <p>Este desarrollo es un ejercicio técnico y no debe ser considerado como fuente de información oficial de CFMoto.</p>
+                <p>Desarrollado por <a href="https://dlimon.net" target="_blank">Daniel Limón</a>.</p>
+            </div>
+            <button class="disclaimer-button" onclick="aceptarDisclaimer()">
+                Entiendo y acepto
+            </button>
+        </div>
+    </div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='cfmoto-logo.png') }}" alt="CFMoto">
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Cotiza tu<br>CFMOTO<br>en línea</h1>
+            </div>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <!-- Selección de Modelo -->
+        <h2 class="section-title">Selecciona tu modelo</h2>
+        <div class="row">
+            {% for modelo, moto in motos.items() %}
+            <div class="col-md-6 mb-4">
+                <div class="card moto-card" onclick="seleccionarMoto('{{ modelo }}')">
+                    <img src="{{ url_for('static', filename=moto.imagen_base) }}" 
+                         class="card-img-top" alt="{{ moto.nombre }}">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ moto.nombre }}</h5>
+                        <p class="card-text">
+                            <span class="fw-bold">Desde:</span> ${{ '{:,.2f}'.format(moto.precio_base) }} MXN<br>
+                            <span class="text-muted">{{ moto.categoría }} | {{ moto.cilindrada }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Formulario de Cotización -->
+        <section id="seccionCotizacion" class="mt-5">
+            <h2 class="section-title">Configura tu financiamiento</h2>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="cotizacion-form">
+                        <form id="cotizadorForm">
+                            <div class="mb-4">
+                                <label class="form-label">Modelo Seleccionado</label>
+                                <input type="text" class="form-control" id="modeloSeleccionado" readonly>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Enganche ($)</label>
+                                <input type="number" class="form-control" id="enganche" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Plazo (meses)</label>
+                                <select class="form-select" id="plazo" required>
+                                    <option value="">Seleccione un plazo</option>
+                                    {% for plazo in [12, 24, 36, 48] %}
+                                    <option value="{{ plazo }}">{{ plazo }} meses</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-cfmoto w-100">Calcular</button>
+                        </form>
+
+                        <!-- Resultados -->
+                        <div id="resultados" class="mt-4 d-none results-section">
+                            <h4 class="mb-4">Resumen de Financiamiento</h4>
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td class="fw-bold">Pago Mensual:</td>
+                                        <td id="pagoMensual" class="text-end"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Monto Total:</td>
+                                        <td id="montoTotal" class="text-end"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">Plazo:</td>
+                                        <td id="plazoSeleccionado" class="text-end"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Contacto</h5>
+                    <p>serviciocliente@cfmoto.com.mx</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 CFMOTO. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let motoSeleccionada = null;
+
+        function seleccionarMoto(modelo) {
+            motoSeleccionada = modelo;
+            document.getElementById('modeloSeleccionado').value = modelo;
+            
+            document.querySelectorAll('.moto-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            document.getElementById('seccionCotizacion').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+            fetch(`/obtener-moto/${modelo}`)
+                .then(response => response.json())
+                .then(moto => {
+                    const engancheMinimo = moto.precio_base * 0.20;
+                    const engancheInput = document.getElementById('enganche');
+                    engancheInput.min = engancheMinimo;
+                    engancheInput.placeholder = `Mínimo: $${engancheMinimo.toLocaleString('es-MX')}`;
+                    if (!engancheInput.value) {
+                        engancheInput.value = engancheMinimo;
+                    }
+                });
+        }
+
+        document.getElementById('cotizadorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!motoSeleccionada) {
+                alert('Por favor seleccione una moto');
+                return;
+            }
+
+            const datos = {
+                modelo: motoSeleccionada,
+                enganche: document.getElementById('enganche').value,
+                plazo: document.getElementById('plazo').value
+            };
+
+            try {
+                const response = await fetch('/calcular-financiamiento', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const resultado = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('resultados').classList.remove('d-none');
+                    document.getElementById('pagoMensual').textContent = 
+                        `$${resultado.pago_mensual.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+                    document.getElementById('montoTotal').textContent = 
+                        `$${resultado.monto_total.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+                    document.getElementById('plazoSeleccionado').textContent = 
+                        `${resultado.plazo} meses`;
+
+                    document.getElementById('resultados').scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                } else {
+                    alert('Error al calcular el financiamiento');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al procesar la solicitud');
+            }
+        });
+    </script>
+    <script>
+        // Función para manejar el disclaimer
+        function aceptarDisclaimer() {
+            document.getElementById('disclaimerModal').style.display = 'none';
+            document.body.classList.remove('disclaimer-active');
+            // Guardar en localStorage que el usuario ya vio el disclaimer
+            localStorage.setItem('disclaimerAceptado', 'true');
+        }
+
+        // Verificar si el usuario ya vio el disclaimer
+        /*document.addEventListener('DOMContentLoaded', function() {
+            const disclaimerAceptado = localStorage.getItem('disclaimerAceptado');
+            if (!disclaimerAceptado) {
+                document.getElementById('disclaimerModal').style.display = 'flex';
+                document.body.classList.add('disclaimer-active');
+            } else {
+                document.getElementById('disclaimerModal').style.display = 'none';
+            }
+        });*/
+
+        // [El resto de los scripts se mantienen igual]
+    </script>
+</body>
+</html>s
